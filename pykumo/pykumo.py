@@ -1,16 +1,18 @@
 """ Module to interact with Mitsubishi KumoCloud devices via their local API.
 """
 
-import hashlib
 import base64
-import time
+import hashlib
+import json
 import logging
 import re
+import time
+from getpass import getpass
+
 import requests
-from urllib3.util.retry import Retry
 from requests.adapters import HTTPAdapter
 from requests.exceptions import Timeout
-from getpass import getpass
+from urllib3.util.retry import Retry
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -508,10 +510,9 @@ class KumoCloudAccount:
                        'Accept-Encoding': 'gzip, deflate, br',
                        'Accept-Language': 'en-US,en',
                        'Content-Type': 'application/json'}
-            body = ('{"username":"%s","password":"%s","appVersion":"2.2.0"}' %
-                    (self._username, self._password))
+            body = {"username":self._username,"password":self._password,"appVersion":"2.2.0"}
             try:
-                response = requests.post(self._url, headers=headers, data=body,
+                response = requests.post(self._url, headers=headers, data=json.dumps(body),
                                          timeout=(KUMO_CONNECT_TIMEOUT_SECONDS,
                                                   KUMO_RESPONSE_TIMEOUT_SECONDS))
             except Timeout as ex:
